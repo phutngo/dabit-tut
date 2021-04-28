@@ -1,70 +1,118 @@
-# Getting Started with Create React App
+## Create Skeleton Project
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+             
+    npx create-react-app dabit-tut
+    cd dabit-tut
+    npm install --save-dev hardhat
+    npm install --save-dev @nomiclabs/hardhat-ethers ethers @nomiclabs/hardhat-waffle ethereum-waffle chai
+    npx hardhat
 
-## Available Scripts
 
-In the project directory, you can run:
+Select 'create sample project', and y (default) on prompts.
 
-### `npm start`
+## Update Configurations
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+1. Go to *hardhat.config.js*.
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+2. Update the module.exports section in *hardhat.config.js* with the following:
 
-### `npm test`
+    -solidity version to 0.8.3
+    -added paths
+    -added networks
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+3. Rename the *sample-script.js* in the scripts folder to *deploy.js* since this script helps with the deployment.
 
-### `npm run build`
+// deploy.js uses *ethers.js* library to put our smart contract onto the ethereum blockchain by sending a message to the x0 address of ethereum blockchain with the data load being our compiled smart contract in bytecode.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Compile and Deploy
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+    npx hardhat compile // to see things working
+    npx hardhat node // start the Hardhat Network, which also gives us 20 Accounts from Account #0 to Account #19 for test use.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+open another terminal
 
-### `npm run eject`
+    npx hardhat run scripts/deploy.js --network localhost // this deploys to the local hardhat node/hardhat network
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Note that the *deploy.js* script, by default, uses the *Account #0* as the sender of the transaction that creates the new contract on the blockchain. "Contract creation transactions are sent to a special destination address called the *zero address* (0x0)" - [Mastering Ethereum](https://github.com/ethereumbook/ethereumbook/blob/develop/06transactions.asciidoc#special-transaction-contract-creation). You can see this by comparing the *From: address* with the *Account #0* address.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+## Connect Metamask
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+On MetaMask - select *localhost: 8545*
+Import account using the private key from *Account #0* given to us.
 
-## Learn More
+We can send transaction from metamast to the contract? #TODO:
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## To the Frontend - Startup React
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+    run npm start // starts up node server
 
-### Code Splitting
+Go to App.js and import:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+    import { useState} from 'react';
+    import { ethers } from 'ethers';
+    import Greeter from './artifacts/contracts/Greeter.sol/Greeter.json' // imports the compiled ABI
 
-### Analyzing the Bundle Size
+## Code React Frontend
+At 20 min of [Dabit Full Stack Guide](https://youtu.be/a0osIaAOFSE?t=1863)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+See detailed notes in App.js. Below are high level steps that was taken to code it.
 
-### Making a Progressive Web App
+1. Set the usestate. #TODO:
+2. Create 3 skeleton functions.
+3. Code fetchGreeting.
+4. Code 
+5. Code 
+...
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+## Deploy to Ropsten
 
-### Advanced Configuration
+#### Setup Metamask
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+1. Switch Metamask to Ropsten network. Create an Account if needed.
+2. Get Ether at https://faucet.ropsten.be/ into your Metamask account.
 
-### Deployment
+#### Config Alchemy or Infura
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+1. Choose either [Alchemy](https://dashboard.alchemyapi.io/) or [Infura](https://infura.io/) as an Ethereum node that we will connect to.
+2. On Alchemy "Create App" and select Ropsten as network and get the API Key.
 
-### `npm run build` fails to minify
+#### Update *hardhat.config.js*
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+We now update our hardhat.config.js to add the Ropsten network. You will need the API endpoint from Alchemy. 
+
+Also you will need to export the private key from the Ropsten account in your Metamask. This will be the account used to create/deploy the contract
+
+1. Add the below to the networks section of hardhat.config.js
+
+````
+
+ropsten: {
+   url: "<API url from Alchemy goes here.>",
+   accounts: [`0x${process.env.PRIVATE_KEY`}] //this is a way to hide the private key. We put the private key in an environment file.
+}
+````
+
+Put this in the environment file:
+
+`export PRIVATE_KEY="<private key from metamask goes here>"`
+
+//TODO: how to set environment variable
+
+#### Deploy
+
+`npx hardhat run script/deploy.js --network=ropsten`
+
+We should see message giving us the deployed contract address.
+
+#### Check Etherscan ropsten
+
+1. Go to https://ropsten.etherscan.io/.
+2. Copy the contract address, and paste into etherscan.
+
+We should see the contract show up!
+
+We should see that we spent a bit of Ether in Metamask as well.
+
+# Create Token
+at 38 min #TODO:
